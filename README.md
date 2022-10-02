@@ -2,7 +2,7 @@
 
 ## Local Setup
 
-1. Clone repository: `https://github.com/everwitt7/Pitch-Prediction.git`
+1. Clone repository: https://github.com/Austin-Dixon/PitcherPolicy-main_inning-VI.git
 2. Create a virtual environment: `python -m venv .venv`
 2. Activate virtual environment: `source .venv/bin/activate`
 3. Install requirements: `pip install -r requirements.txt`
