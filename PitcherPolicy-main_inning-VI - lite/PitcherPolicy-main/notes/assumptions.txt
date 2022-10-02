@@ -1,0 +1,18 @@
+List of Assumptions 
+
+Pitching:
+- When the pitcher throws to a zone, he throws to the center of that zone
+- Two-Seam and Sinkers are the same pitch
+- Pitchers' accuracy is independent of state (i.e. count, outs, runners are base are irrelevant to accuracy)
+- We have information on spin rates, but we assume spin rate does not effect the outcome transition probabilities
+- We assume pitch count is irrelevant, regardless of the number of pitches thrown the pitcher will be consistent
+
+Hitting:
+- We ignore all pitches in which the batter gets hit by a pitch
+
+Obvious Zones:
+- We create our Obvious Zone Cutoffs based on Righty and Lefty Batters. It might make more sense to partition 
+the data set, then create our obvious zones, because righty and lefty batters may have different swing
+tendencies and therefore have different obvious zones. 
+
+Other:
