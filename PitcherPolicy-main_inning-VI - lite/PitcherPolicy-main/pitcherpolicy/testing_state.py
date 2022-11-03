@@ -56,7 +56,7 @@ for b in bs:
                         for run in range(N):
                             for out in range(3):
                                 states.append(Inning(b,{1:b1,2:b2,3:b3},{"balls":ball,"strikes":strike,"runs":run,"outs":out},N))
-for i in range(11):
+for i in range(N+1):
     states.append(Inning(NONE,{1:0,2:0,3:0},{"balls":0,"strikes":0,"runs":i,"outs":3},N))
 
 #load pitch tensors
@@ -121,18 +121,18 @@ secs =  (total % 3600) % 60
 print("In",hrs, "Hours,",mins,"Minutes,",format(secs,".2f"),"Seconds.")
 
 #save data in files
-with open("fullvals10.json","w") as file:
-    file.write(json.dumps(s1_vals))
+# with open("fullvals10.json","w") as file:
+#     file.write(json.dumps(s1_vals))
 
-with open("fullpols10.json","w") as file:
-    file.write(json.dumps(s1_pol))
+# with open("fullpols10.json","w") as file:
+#     file.write(json.dumps(s1_pol))
 
-#load saved data
-with open("fullvals10.json") as file:
-    s1_vals=json.load(file)
+# #load saved data
+# with open("fullvals10.json") as file:
+#     s1_vals=json.load(file)
 
-with open("fullpols10.json") as file:
-    s1_pol=json.load(file)
+# with open("fullpols10.json") as file:
+#     s1_pol=json.load(file)
     
 #Get date to an easier-to-read state
 simple_vals={x:s1_vals[x][-1] for x in s1_vals}
