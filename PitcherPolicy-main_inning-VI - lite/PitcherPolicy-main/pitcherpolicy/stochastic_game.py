@@ -172,7 +172,7 @@ class StochasticGame:
         state_val = {}
         for state in self.states:
             policy[state.state_name] = {}
-            state_val[state.state_name] = [state.reward()]
+            state_val[state.state_name] = [0]
 
         # to keep track of the previous state value (storing in a list rather than last prev)
         iters = 0
@@ -188,8 +188,8 @@ class StochasticGame:
                     for zone in self.trans_prob_mat[state.atbat][pitch]:
                         # we reset the q_vals everytime our state_vals change
                         q_vals[state.state_name][pitch][zone] = {
-                            BatActs.SWING.value: state.reward(),
-                            BatActs.TAKE.value: state.reward(),
+                            BatActs.SWING.value: 0,
+                            BatActs.TAKE.value: 0,
                         }
 
                         # compute swing q_vals
@@ -215,7 +215,7 @@ class StochasticGame:
                             if state.atbat!=(0,0,0,0,0,0,0,0,0):
                                 q_vals[state.state_name][pitch][zone][
                                     BatActs.SWING.value
-                                ] += res_prob * state_val[nxt_state.state_name][iters]
+                                ] += res_prob * (nxt_state.reward()+state_val[nxt_state.state_name][iters])
 
                         # compute take q_vals
                         for res, res_prob in self.trans_prob_mat[state.atbat][pitch][zone][count][
@@ -238,7 +238,7 @@ class StochasticGame:
                             if state.atbat !=(0,0,0,0,0,0,0,0,0):
                                 q_vals[state.state_name][pitch][zone][
                                     BatActs.TAKE.value
-                                ] += res_prob * state_val[nxt_state.state_name][iters]
+                                ] += res_prob * (nxt_state.reward()+state_val[nxt_state.state_name][iters])
 
                 # passing q_vals into LP to get state_val and policy
                 new_state_val, policy[state.state_name] = self.solve_lp(

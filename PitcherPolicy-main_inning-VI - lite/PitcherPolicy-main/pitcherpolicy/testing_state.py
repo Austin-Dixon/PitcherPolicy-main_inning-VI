@@ -33,9 +33,10 @@ def nxt(b):
     batter[nxt]=1
     return(tuple(batter))
 
+
 start=time()
 NONE=(0,0,0,0,0,0,0,0,0)
-ACTIONS=("strike","foul","ball","strikeout","groundout","single","double","triple","home run")
+ACTIONS=("strike","foul","ball","out","single","double","triple","home run")
 
 #generate all possible Inning game states (with absolute order)
 N=10
@@ -56,6 +57,7 @@ for b in bs:
                         for run in range(N):
                             for out in range(3):
                                 states.append(Inning(b,{1:b1,2:b2,3:b3},{"balls":ball,"strikes":strike,"runs":run,"outs":out},N))
+
 for i in range(N+1):
     states.append(Inning(NONE,{1:0,2:0,3:0},{"balls":0,"strikes":0,"runs":i,"outs":3},N))
 
@@ -83,7 +85,7 @@ transitions={}
 pitches = gen_pitches()
 counts = gen_counts()
 
-#generare accurracy matrix for selected pitcher
+#generate accurracy matrix for selected pitcher
 acc_mat = gen_acc_mat(acc_model, pitcher, pitches)
 
 #generate batting team, map to positions, and transition probabilities for each batter
@@ -129,10 +131,10 @@ print("In",hrs, "Hours,",mins,"Minutes,",format(secs,".2f"),"Seconds.")
 
 # #load saved data
 # with open("fullvals10.json") as file:
-#     s1_vals=json.load(file)
+#     s2_vals=json.load(file)
 
 # with open("fullpols10.json") as file:
-#     s1_pol=json.load(file)
+#     s2_pol=json.load(file)
     
 #Get date to an easier-to-read state
 simple_vals={x:s1_vals[x][-1] for x in s1_vals}
@@ -143,6 +145,3 @@ for state in s1_pol:
         for zone in s1_pol[state][pitch]:
             pitches[(pitch,zone)]=s1_pol[state][pitch][zone]
     simple_pol[state]=pitches
-    
-with open("results.json") as file:
-    results=json.load(file)

@@ -12,8 +12,7 @@ class BatActs(Enum):
 @unique
 class Outcomes(Enum):
     """Enum for all possible outcomes of a given count state"""
-    STRIKEOUT = "strikeout"
-    GROUNDOUT = "groundout"
+    OUT = "out"
     SINGLE = "single"
     DOUBLE = "double"
     TRIPLE = "triple"

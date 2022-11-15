@@ -448,14 +448,12 @@ def gen_swing_trans_matrix(model, pitcher_tensor, batter_tensor, take_mat, pitch
                     else:
                         prediction = predictions[prediction_index]
                         prediction_index+=1
-                        #print(prediction)
                         cleaned_prediction = {
-                            Outcomes.STRIKEOUT.value: float(prediction[2]),
-                            Outcomes.GROUNDOUT.value: float(prediction[3]),
-                            Outcomes.SINGLE.value: float(prediction[4]),
-                            Outcomes.DOUBLE.value: float(prediction[5]),
-                            Outcomes.TRIPLE.value: float(prediction[6]),
-                            Outcomes.HOMERUN.value: float(prediction[7]),
+                            Outcomes.OUT.value: float(prediction[2]),
+                            Outcomes.SINGLE.value: float(prediction[3]),
+                            Outcomes.DOUBLE.value: float(prediction[4]),
+                            Outcomes.TRIPLE.value: float(prediction[5]),
+                            Outcomes.HOMERUN.value: float(prediction[6]),
                             Outcomes.FOUL.value: float(prediction[1]),
                             Outcomes.STRIKE.value: float(prediction[0]),
                         }
@@ -572,8 +570,7 @@ def gen_trans_prob_mat(swing_trans_mat: dict, acc_mat: dict, take_mat:dict) -> d
                         Outcomes.BALL.value: 0,
                     },
                     BatActs.SWING.value: {
-                        Outcomes.STRIKEOUT.value: 0,
-                        Outcomes.GROUNDOUT.value: 0,
+                        Outcomes.OUT.value: 0,
                         Outcomes.SINGLE.value: 0,
                         Outcomes.DOUBLE.value: 0,
                         Outcomes.TRIPLE.value: 0,
@@ -609,10 +606,9 @@ def gen_trans_prob_mat(swing_trans_mat: dict, acc_mat: dict, take_mat:dict) -> d
                         for outcome, prob_outcome in swing_trans_mat[pitch][act_zone][
                             count
                         ].items():
-                            if not (BatActs.SWING.value == "swing" and outcome == "ball"):
-                                trans_prob_mat[pitch][int_zone][count][BatActs.SWING.value][
-                                    outcome
-                                ] += (prob_in_zone * prob_outcome)
+                            trans_prob_mat[pitch][int_zone][count][BatActs.SWING.value][
+                                outcome
+                            ] += (prob_in_zone * prob_outcome)
                 else:
                     trans_prob_mat[pitch][int_zone][count][
                         BatActs.SWING.value

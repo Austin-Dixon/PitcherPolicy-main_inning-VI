@@ -12,6 +12,7 @@ def nxt(b):
     batter=list(NONE)
     batter[nxt]=1
     return(tuple(batter))
+    #return b
 
 class State:
     """State is the parent class of all state distributions
@@ -195,7 +196,7 @@ class Inning:
             #terminal state, returns itself as successor
             return self
         
-        elif action in ["groundout","strikeout"]:
+        elif action == "out":
             #Update stats
             stat["strikes"]=0
             stat["balls"]=0
@@ -288,20 +289,9 @@ class Inning:
                     return Inning(nxt(atbat),base,stat,self.N)
                 return Inning(NONE,{1:0,2:0,3:0},stat,self.N)
             
-            #If less 2 strikes, update count
+            #If less than 2 strikes, update count
             stat["strikes"]+=1
             return Inning(atbat,base,stat,self.N)
-        
-        # elif action=="strikeout": #flyout (mislabeled)
-        #     #Update stats and reset count
-        #     stat["strikes"]=0
-        #     stat["balls"]=0
-        #     stat["outs"]+=1
-            
-        #     #Terminate game at 3 outs, otherwise go to next batter
-        #     if stat["outs"]==3:
-        #         return Inning(NONE,{1:0,2:0,3:0},stat,self.N)
-        #     return Inning(nxt(atbat),base,stat,self.N)
         
         elif action=="ball":
             if stat["balls"]==3:
