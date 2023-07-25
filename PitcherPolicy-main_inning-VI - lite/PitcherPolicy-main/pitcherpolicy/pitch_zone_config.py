@@ -617,27 +617,39 @@ def gen_trans_prob_mat(swing_trans_mat: dict, acc_mat: dict, take_mat:dict) -> d
     return trans_prob_mat
 
 def gen_inning_states(n): #n represents the max number of runs to terminate the game
-    NONE=(0,0,0,0,0,0,0,0,0)
-    #generate all possible Inning game states (with absolute order)
-    b=(1,0,0,0,0,0,0,0,0)
-    bs=[]
-    for i in range(9):
-        bs.append(b)
-        b=nxt(b)
+    # NONE=(0,0,0,0,0,0,0,0,0)
+    # #generate all possible Inning game states (with absolute order)
+    # b=(1,0,0,0,0,0,0,0,0)
+    # bs=[]
+    # for i in range(9):
+    #     bs.append(b)
+    #     b=nxt(b)
 
-    #Alternative iteral brute force establishment of states    
+    # #Alternative iteral brute force establishment of states    
+    # states=[]
+    # for b in bs:
+    #     for b1 in range(2):
+    #         for b2 in range(2):
+    #             for b3 in range(2):
+    #                 for ball in range(4):
+    #                     for strike in range(3):
+    #                         for run in range(n):
+    #                             for out in range(3):
+    #                                 states.append(Inning(b,{1:b1,2:b2,3:b3},{"balls":ball,"strikes":strike,"runs":run,"outs":out},n))
+    # for i in range(n+1):
+    #     states.append(Inning(NONE,{1:0,2:0,3:0},{"balls":0,"strikes":0,"runs":i,"outs":3},n))
+    ACTIONS=("strike","foul","ball","out","single","double","triple","home run")
     states=[]
-    for b in bs:
-        for b1 in range(2):
-            for b2 in range(2):
-                for b3 in range(2):
-                    for ball in range(4):
-                        for strike in range(3):
-                            for run in range(n):
-                                for out in range(3):
-                                    states.append(Inning(b,{1:b1,2:b2,3:b3},{"balls":ball,"strikes":strike,"runs":run,"outs":out},n))
-    for i in range(n+1):
-        states.append(Inning(NONE,{1:0,2:0,3:0},{"balls":0,"strikes":0,"runs":i,"outs":3},n))
+    stack=[Inning((1,0,0,0,0,0,0,0,0),{1:0,2:0,3:0},{"balls":0,"strikes":0,"runs":0,"outs":0},n)]
+    while len(stack)>0:
+        cur=stack[0]
+        if cur not in states:
+            states.append(cur)
+            for act in ACTIONS:
+                suc=cur.get_successor(act)
+                if suc not in stack and suc not in states:
+                    stack.append(suc)
+        stack.remove(cur)
     return states
 
 def gen_trans_inning_mat(pid,team):

@@ -155,7 +155,7 @@ class Count(State):
 
 class Inning:
 
-    def __init__(self,atbat,base,stat,N):
+    def __init__(self,atbat,base,stat):
         """Instantiates CountState object
 
         Parameters
@@ -183,11 +183,16 @@ class Inning:
         self.atbat=atbat
         self.base=base
         self.stat=stat
-        self.N=N
-        self.state_name=str((self.atbat,self.base,self.stat))
+        #self.state_name=str((self.atbat,self.base,self.stat))
+        #Binary to T/F reference dictionary 
+        cv={0:"False",1:"True"}
+        if atbat != NONE:
+            self.state_name="BI:"+str(atbat.index(1))+",1:"+cv[base[1]]+",2:"+cv[base[2]]+",3:"+cv[base[3]]+",O:"+str(stat["outs"])+",B:"+str(stat["balls"])+",S:"+str(stat["strikes"])
+        else:
+            self.state_name="Inning Done"
+            
         
     def get_successor(self,action):
-        runs=0
         atbat=self.atbat[:]
         base=self.base.copy()
         stat=self.stat.copy()
@@ -204,78 +209,38 @@ class Inning:
             
             #End game immediately on third strike
             if stat["outs"]>=3:
-                return Inning(NONE,{1:0,2:0,3:0},stat,self.N)
+                return Inning(NONE,{1:0,2:0,3:0},stat)
             else:
-                #Player on base 3 scores
-                if base[3]==1:
-                    runs+=1
-                stat["runs"]+=runs
-                
-                #Check if terminal score is reached
-                if stat["runs"]>=self.N:
-                    stat["runs"]=self.N
-                    stat["outs"]=3
-                    return Inning(NONE,{1:0,2:0,3:0},stat,self.N)
-                
                 #Move players up 1 base
                 base[3]=base[2]
                 base[2]=base[1]
                 base[1]=0
-                return Inning(nxt(atbat),base,stat,self.N)
+                return Inning(nxt(atbat),base,stat)
         
         elif action=="single":
             #Update stats
             stat["strikes"]=0
             stat["balls"]=0
-            runs+=base[2]
-            runs+=base[3]
-            stat["runs"]+=runs
-            
-            #Stops game at terminal score
-            if stat["runs"]>=self.N:
-                stat["runs"]=self.N
-                stat["outs"]=3
-                return Inning(NONE,{1:0,2:0,3:0},stat,self.N)
-            
+                       
             #Update bases and return successor
             base[3]=base[1]
             base[2]=0
             base[1]=1
-            return Inning(nxt(atbat),base,stat,self.N)
+            return Inning(nxt(atbat),base,stat)
         
         elif action in ["double","triple","home run"]:
             #Update count
             stat["strikes"]=0
             stat["balls"]=0
             
-            #Score players on-base
-            for b in base:
-                runs+=base[b]
-            stat["runs"]+=runs
-            
-            #Stops game at terminal score
-            if stat["runs"]>=self.N:
-                stat["runs"]=self.N
-                stat["outs"]=3
-                return Inning(NONE,{1:0,2:0,3:0},stat,self.N)
-            
             if action=="double":
-                return Inning(nxt(atbat),{1:0,2:1,3:0},stat,self.N)
+                return Inning(nxt(atbat),{1:0,2:1,3:0},stat)
             
             elif action=="triple":
-                return Inning(nxt(atbat),{1:0,2:0,3:1},stat,self.N)
+                return Inning(nxt(atbat),{1:0,2:0,3:1},stat)
             
             else:
-                #Score batter
-                stat["runs"]+=1
-                
-                #Second check for terminal score
-                if stat["runs"]>=self.N:
-                    stat["runs"]=self.N
-                    stat["outs"]=3
-                    return Inning(NONE,{1:0,2:0,3:0},stat,self.N)
-                
-                return Inning(nxt(atbat),{1:0,2:0,3:0},stat,self.N)
+                return Inning(nxt(atbat),{1:0,2:0,3:0},stat)
         
         elif action == "strike":
             if stat["strikes"]==2:
@@ -286,12 +251,12 @@ class Inning:
                 
                 #Continue game with less than 3 outs, terminate otherwise
                 if stat["outs"]<=2:
-                    return Inning(nxt(atbat),base,stat,self.N)
-                return Inning(NONE,{1:0,2:0,3:0},stat,self.N)
+                    return Inning(nxt(atbat),base,stat)
+                return Inning(NONE,{1:0,2:0,3:0},stat)
             
             #If less than 2 strikes, update count
             stat["strikes"]+=1
-            return Inning(atbat,base,stat,self.N)
+            return Inning(atbat,base,stat)
         
         elif action=="ball":
             if stat["balls"]==3:
@@ -306,31 +271,37 @@ class Inning:
                     base[2]=1
                 elif base[3]==0:
                     base[3]=1
-                else:
-                    runs+=1
-                stat["runs"]+=runs
-                
-                #Stop game at terminal score, send next batter otherwise
-                if stat["runs"]>=self.N:
-                    stat["runs"]=self.N
-                    stat["outs"]=3
-                    return Inning(NONE,{1:0,2:0,3:0},stat,self.N)
-                return Inning(nxt(atbat),base,stat,self.N)
+                return Inning(nxt(atbat),base,stat)
             
             #Update "ball" count if less than 3 "balls" recorded
             stat["balls"]+=1
-            return Inning(atbat,base,stat,self.N)
+            return Inning(atbat,base,stat)
         
         elif action=="foul":
             #Adds to strike count when current at-bat count has less than 2 strikes
             if stat["strikes"]<2:
                 stat["strikes"]+=1
-            return Inning(atbat,base,stat,self.N)
+            return Inning(atbat,base,stat)
     
-    def reward(self):
-        if self.stat["outs"]==3:
-            return self.stat["runs"]
-        return 0
+    def reward(self,outcome):
+        reward = 0
+        if outcome == "single":
+            for i in range(2,4):
+                reward += self.base[i]
+                
+        elif outcome in ["double","triple","home run"]:
+            for i in range(1,4):
+                reward += self.base[i]
+            if outcome == "home run":
+                reward += 1
+                
+        elif outcome == "out" and self.stat["outs"]<2:
+            reward += self.base[3]
+            
+        elif outcome == "ball" and sum([self.base[i] for i in [1,2,3]]) == 3:
+            reward += 1
+            
+        return reward
         
     def Count(self):
         return str(self.stat["balls"])+str(self.stat["strikes"])
@@ -344,7 +315,7 @@ class Inning:
         return tuple((self.atbat,tuple(self.base.items()),tuple(self.stat.items()))).__hash__()
     
     def __repr__(self):
-        return str((self.atbat,self.base,self.stat,self.prev))
+        return str((self.atbat,self.base,self.stat))
     
     def __str__(self):
-        return str((self.atbat,self.base,self.stat,self.prev))
+        return str((self.atbat,self.base,self.stat))

@@ -19,6 +19,7 @@ from stochastic_game import StochasticGame
 
 
 if __name__ == "__main__":    
+    """
     # Set pitcher/batter matchup for the at bat
     N = 10 # Max score before terminating
     pitcher_id = '607536'
@@ -33,15 +34,16 @@ if __name__ == "__main__":
     #print(s1_pol)
 
     """
-    FOR AGGREGATE TESTING (NOT RELEVANT TO CURRENT IMPLEMENTATION)
+    #FOR AGGREGATE TESTING (NOT RELEVANT TO CURRENT IMPLEMENTATION)
 
     selected_thirds =  {'pitchers': {0: [527048, 451596, 501957, 503449, 543022, 460059, 606131, 430912, 453385, 446321, 571800, 572096, 628333, 430580, 572750, 554234, 605541, 605156, 643230, 425386], 1: [489119, 430935, 502043, 592662, 543699, 488768, 461829, 282332, 518633, 608379, 502327, 519455, 434538, 467100, 573186, 458681, 425794, 433587, 592717, 605200], 2: [453286, 452657, 518516, 519242, 527054, 434378, 519144, 500779, 502042, 425844, 594798, 453562, 545333, 502188, 571666, 543294, 477132, 572971, 457918, 544931]}, 'batters': {0: [572287, 429667, 488721, 595978, 543376, 425784, 506560, 542208, 425772, 408299, 572204, 435064, 543216, 641525, 592444, 431171, 571912, 596143, 542194, 571974], 1: [453943, 448801, 405395, 446334, 520471, 516770, 607680, 435622, 543063, 596059, 430945, 457803, 545341, 608365, 595281, 500871, 578428, 461314, 571740, 474568], 2: [502671, 467793, 458015, 605141, 545361, 593428, 592178, 547180, 547989, 518626, 453568, 519203, 474832, 572821, 592518, 518934, 543333, 451594, 429665, 458731]}}
-
-
-   
-    
-    
-
+    with open("tensors/pitcher_tensors.json") as f:
+        pitcher_tensors = json.load(f)
+    with open("tensors/batter_tensors.json") as f:
+        batter_tensors = json.load(f)
+    take_model = models.load_model("../models/take_2015-2018.h5")
+    swing_trans_model = models.load_model("../models/transition_model_2015-2018.h5")
+    acc_model = models.load_model("../models/error_2015-2018.h5")           
     outcomes_total = {}
     results = {}
     for i in selected_thirds["pitchers"].keys():
@@ -74,8 +76,9 @@ if __name__ == "__main__":
                     take_mat = gen_take_mat(take_model, batter, pitches, .2)
                     nn_swing_trans_mat = gen_swing_trans_matrix(swing_trans_model, pitcher, batter, take_mat, pitches)
                     nn_trans_prob_mat = gen_trans_prob_mat(nn_swing_trans_mat, acc_mat, take_mat)
-                
-                    s1 = StochasticGame(counts, nn_trans_prob_mat)
+                    trans={(1,0,0,0,0,0,0,0,0):nn_trans_prob_mat}
+                    states=gen_inning_states(10)
+                    s1 = StochasticGame(counts, trans)
                     
                     s1_vals, s1_pol = s1.solve_game()
                     for count in s1_vals.keys():
@@ -91,7 +94,7 @@ if __name__ == "__main__":
             group_key =str(i)+str(j)
             for count in outcomes_total[group_key].keys():
                 results[group_key][count] = outcomes_total[group_key][count].tolist()
-    with open("value_iter_outcomes.json", "w") as outfile: 
+    with open("thirds.json", "w") as outfile: 
         json.dump(results, outfile)
     print("SAVED")
-    """
+    #"""

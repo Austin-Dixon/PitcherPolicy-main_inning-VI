@@ -57,7 +57,7 @@ class StochasticGame:
             (which determines state_val)
         """
         state_vals, state_policy = self.run_val_iter()
-        self.print_solution(state_vals, state_policy)
+        #self.print_solution(state_vals, state_policy)
         return state_vals, state_policy
 
         # we want this to get the results and then print them too
@@ -215,7 +215,7 @@ class StochasticGame:
                             if state.atbat!=(0,0,0,0,0,0,0,0,0):
                                 q_vals[state.state_name][pitch][zone][
                                     BatActs.SWING.value
-                                ] += res_prob * (nxt_state.reward()+state_val[nxt_state.state_name][iters])
+                                ] += res_prob * (nxt_state.reward(res)+state_val[nxt_state.state_name][iters])
 
                         # compute take q_vals
                         for res, res_prob in self.trans_prob_mat[state.atbat][pitch][zone][count][
@@ -238,7 +238,7 @@ class StochasticGame:
                             if state.atbat !=(0,0,0,0,0,0,0,0,0):
                                 q_vals[state.state_name][pitch][zone][
                                     BatActs.TAKE.value
-                                ] += res_prob * (nxt_state.reward()+state_val[nxt_state.state_name][iters])
+                                ] += res_prob * (nxt_state.reward(res)+state_val[nxt_state.state_name][iters])
 
                 # passing q_vals into LP to get state_val and policy
                 new_state_val, policy[state.state_name] = self.solve_lp(
